@@ -1,18 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classic Solitaire</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #076324; }
-        #game-container { width: 100%; height: 100%; }
-        iframe { border: none; width: 100%; height: 100%; }
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background-color: #076324; /* Traditional Green Felt */
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* This ensures the game fills your iframe perfectly */
+        #game-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <iframe src="https://solitaire.jscasino.org/" allowfullscreen></iframe>
-    </div>
+
+    <iframe id="game-frame" src="https://deck.of.cards/solitaire/"></iframe>
+
 </body>
 </html>
