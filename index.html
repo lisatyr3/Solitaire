@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Solitaire</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6; /* Soft Modern Organic background */
+            --card-back: #2c3e50;
+            --text-main: #333;
+            --felt-green: #e9ecef; /* Light gray-green for a clean look */
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        #game-info { margin: 10px; font-weight: 600; color: var(--text-main); }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            width: 95vw;
+            max-width: 800px;
+            padding: 20px;
+        }
+        .slot {
+            aspect-ratio: 2/3;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            position: relative;
+        }
+        .card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 5px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            user-select: none;
+        }
+        .card.red { color: #e74c3c; }
+        .card.black { color: #2c3e50; }
+        .card.back {
+            background-color: var(--card-back);
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,255,255,.05) 5px, rgba(255,255,255,.05) 10px);
+        }
+        .controls { margin-top: 20px; }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background: #2c3e50;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-info">Solitaire: Click cards to move them automatically</div>
+<div id="board">
+    <div class="slot" id="deck" onclick="drawCard()"></div>
+    <div class="slot" id="waste"></div>
+    <div class="slot" style="border:none"></div> <div class="slot foundation" data-suit="h"></div>
+    <div class="slot foundation" data-suit="d"></div>
+    <div class="slot foundation" data-suit="c"></div>
+    <div class="slot foundation" data-suit="s"></div>
+
+    <div class="slot tableau" id="t1"></div>
+    <div class="slot tableau" id="t2"></div>
+    <div class="slot tableau" id="t3"></div>
+    <div class="slot tableau" id="t4"></div>
+    <div class="slot tableau" id="t5"></div>
+    <div class="slot tableau" id="t6"></div>
+    <div class="slot tableau" id="t7"></div>
+</div>
+
+<div class="controls">
+    <button onclick="initGame()">New Game</button>
+</div>
+
+<script>
+    const suits = ['h', 'd', 'c', 's'];
+    const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    let deck = [];
+
+    function initGame() {
+        deck = [];
+        for (let s of suits) {
+            for (let v of values) {
+                deck.push({ suit: s, value: v, faceUp: false });
+            }
+        }
+        shuffle(deck);
+        render();
+    }
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function render() {
+        const deckSlot = document.getElementById('deck');
+        deckSlot.innerHTML = deck.length > 0 ? '<div class="card back"></div>' : '';
+        // Simplified rendering for this demo
+        document.querySelectorAll('.tableau').forEach((t, i) => {
+            t.innerHTML = `<div class="card back" style="top:${i*2}px"></div>`;
+        });
+    }
+
+    function drawCard() {
+        if (deck.length === 0) {
+            alert("This simplified version resets the deck!");
+            initGame();
+        } else {
+            const card = deck.pop();
+            const waste = document.getElementById('waste');
+            waste.innerHTML = `<div class="card ${card.suit === 'h' || card.suit === 'd' ? 'red' : 'black'}">
+                <div>${card.value}${getSymbol(card.suit)}</div>
+            </div>`;
+        }
+    }
+
+    function getSymbol(s) {
+        return {h:'♥', d:'♦', c:'♣', s:'♠'}[s];
+    }
+
+    initGame();
+</script>
+</body>
+</html>
