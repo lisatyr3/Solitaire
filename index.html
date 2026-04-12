@@ -2,28 +2,103 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classic Solitaire</title>
     <style>
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            background-color: #076324; /* Traditional Green Felt */
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        /* This ensures the game fills your iframe perfectly */
-        #game-frame {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+        :root { --green: #076324; --white: #ffffff; }
+        body { background: var(--green); font-family: sans-serif; margin: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        #status { color: white; margin: 10px; font-weight: bold; }
+        #game { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; width: 95vw; max-width: 800px; margin-top: 20px; }
+        .slot { aspect-ratio: 2/3; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; position: relative; }
+        .card { position: absolute; width: 100%; height: 100%; background: white; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; padding: 8px; box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.1s; border: 1px solid #ccc; font-size: 1.2rem; font-weight: bold; }
+        .card.red { color: #d63031; }
+        .card.black { color: #2d3436; }
+        .card.back { background: #2c3e50; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px); border: 2px solid white; }
+        .card.back * { display: none; }
+        .tableau-stack { position: absolute; width: 100%; }
+        button { margin-top: 20px; padding: 10px 20px; border-radius: 20px; border: none; cursor: pointer; background: white; font-weight: bold; }
     </style>
 </head>
 <body>
+    <div id="status">Classic Solitaire</div>
+    <div id="game">
+        <div class="slot" id="deck" onclick="drawCard()"></div>
+        <div class="slot" id="waste"></div>
+        <div class="slot" style="border:none"></div>
+        <div class="slot foundation" id="f1"></div>
+        <div class="slot foundation" id="f2"></div>
+        <div class="slot foundation" id="f3"></div>
+        <div class="slot foundation" id="f4"></div>
+        <div class="slot tableau" id="t1"></div>
+        <div class="slot tableau" id="t2"></div>
+        <div class="slot tableau" id="t3"></div>
+        <div class="slot tableau" id="t4"></div>
+        <div class="slot tableau" id="t5"></div>
+        <div class="slot tableau" id="t6"></div>
+        <div class="slot tableau" id="t7"></div>
+    </div>
+    <button onclick="location.reload()">New Game</button>
 
-    <iframe id="game-frame" src="https://deck.of.cards/solitaire/"></iframe>
+<script>
+    const suits = [{s:'♥', c:'red'}, {s:'♦', c:'red'}, {s:'♣', c:'black'}, {s:'♠', c:'black'}];
+    const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+    let deck = [];
 
+    function init() {
+        suits.forEach(s => ranks.forEach(r => deck.push({r, s:s.s, c:s.c})));
+        for(let i = deck.length-1; i>0; i--) {
+            const j = Math.floor(Math.random()*(i+1));
+            [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        setupTableau();
+    }
+
+    function setupTableau() {
+        for(let i=1; i<=7; i++) {
+            const el = document.getElementById('t'+i);
+            for(let j=0; j<i; j++) {
+                const card = deck.pop();
+                const cardEl = createCardEl(card, j === i-1);
+                cardEl.style.top = (j * 20) + 'px';
+                el.appendChild(cardEl);
+            }
+        }
+        updateDeck();
+    }
+
+    function createCardEl(card, faceUp) {
+        const div = document.createElement('div');
+        div.className = `card ${card.c} ${faceUp ? '' : 'back'}`;
+        div.innerHTML = `<div>${card.r}${card.s}</div><div style="align-self:flex-end">${card.r}${card.s}</div>`;
+        if(faceUp) div.onclick = (e) => { e.stopPropagation(); tryMove(div); };
+        return div;
+    }
+
+    function updateDeck() {
+        document.getElementById('deck').innerHTML = deck.length ? '<div class="card back"></div>' : '';
+    }
+
+    function drawCard() {
+        if(!deck.length) return;
+        const card = deck.pop();
+        const waste = document.getElementById('waste');
+        waste.innerHTML = '';
+        waste.appendChild(createCardEl(card, true));
+        updateDeck();
+    }
+
+    function tryMove(cardEl) {
+        // Simple auto-move to foundations
+        for(let i=1; i<=4; i++) {
+            const f = document.getElementById('f'+i);
+            if(!f.children.length) {
+                f.appendChild(cardEl);
+                cardEl.style.top = '0';
+                return;
+            }
+        }
+    }
+
+    init();
+</script>
 </body>
 </html>
