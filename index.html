@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,13 +126,6 @@
     border-radius:var(--radius-card);
     background:rgba(0,0,0,.12);
   }
-  .foundation .slot-empty::after{
-    content:attr(data-suit-symbol);
-    position:absolute;inset:0;
-    display:flex;align-items:center;justify-content:center;
-    font-size:34px;color:rgba(233,213,154,.28);
-    font-weight:800;
-  }
   .col{
     width:var(--card-w);
     min-height:var(--card-h);
@@ -252,6 +244,18 @@
     opacity:0;transition:opacity .25s ease;
   }
   #hint-banner.show{opacity:1;}
+  #howto-line{
+    text-align:center;color:var(--cream-dim);
+    font-size:13px;margin-top:10px;max-width:520px;
+    line-height:1.4;
+  }
+  .help-body{text-align:left;}
+  .help-body p{color:var(--cream-dim);font-size:14px;line-height:1.55;margin:0 0 10px;}
+  .help-body h3{
+    font-family:'Playfair Display',serif;color:var(--brass-light);
+    font-size:16px;margin:14px 0 6px;
+  }
+  .help-body h3:first-child{margin-top:0;}
 
   @media (prefers-reduced-motion: reduce){
     .card,button.ctrl{transition:none;}
@@ -275,8 +279,10 @@
       <button class="ctrl ghost" id="btn-hint">Hint</button>
       <button class="ctrl ghost" id="btn-draw">Draw 3</button>
       <button class="ctrl ghost" id="btn-sound">Sound: on</button>
+      <button class="ctrl ghost" id="btn-help">How to play</button>
       <button class="ctrl win-cta" id="btn-auto" style="display:none;">Auto-complete</button>
     </div>
+    <div id="howto-line">Tap a card, then tap where it should go. Double-tap a card to send it straight to its foundation.</div>
   </div>
 
   <div id="board">
@@ -286,15 +292,36 @@
         <div class="pile" id="waste"></div>
       </div>
       <div id="foundations">
-        <div class="pile foundation" id="f-S" data-suit-symbol="&#9824;"></div>
-        <div class="pile foundation" id="f-H" data-suit-symbol="&#9829;"></div>
-        <div class="pile foundation" id="f-D" data-suit-symbol="&#9830;"></div>
-        <div class="pile foundation" id="f-C" data-suit-symbol="&#9827;"></div>
+        <div class="pile foundation" id="f-S"></div>
+        <div class="pile foundation" id="f-H"></div>
+        <div class="pile foundation" id="f-D"></div>
+        <div class="pile foundation" id="f-C"></div>
       </div>
     </div>
     <div id="tableau"></div>
   </div>
   <div id="hint-banner"></div>
+</div>
+
+<div class="overlay hidden" id="help-overlay">
+  <div class="overlay-card" style="max-width:420px;">
+    <h2>How to play</h2>
+    <div class="help-body">
+      <h3>Moving cards</h3>
+      <p>Tap a card to select it — it gets a gold outline. Then tap the pile or card you want to move it to. Tap the same card again to cancel.</p>
+      <p>Double-tap any playable card to send it straight up to its foundation, if it can go there.</p>
+      <h3>The goal</h3>
+      <p>Build each foundation pile (top right) up from Ace to King, one suit at a time.</p>
+      <h3>The rules</h3>
+      <p>On the columns below, cards stack in decreasing order, alternating red and black. Only a King can start a new empty column.</p>
+      <p>Tap the deck at top left to draw new cards. When it runs out, tap it again to recycle the waste pile.</p>
+      <h3>If you get stuck</h3>
+      <p>Tap Hint for a suggestion, or Undo to take back your last move. Auto-complete appears once every card on the board is face up.</p>
+    </div>
+    <div class="overlay-actions">
+      <button class="ctrl" id="help-close">Got it</button>
+    </div>
+  </div>
 </div>
 
 <div class="overlay hidden" id="win-overlay">
@@ -882,7 +909,6 @@
       if(!pile.length){
         var empty = document.createElement("div");
         empty.className = "slot-empty";
-        empty.dataset.suitSymbol = SUIT_SYMBOL[s];
         empty.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;color:rgba(233,213,154,.28);font-weight:800;">'+SUIT_SYMBOL_TXT[s]+'</div>';
         el.appendChild(empty);
       } else {
@@ -1108,6 +1134,12 @@
     updateButtons();
   };
   document.getElementById("btn-auto").onclick = autoComplete;
+  document.getElementById("btn-help").onclick = function(){
+    showOverlay(document.getElementById("help-overlay"));
+  };
+  document.getElementById("help-close").onclick = function(){
+    hideOverlay(document.getElementById("help-overlay"));
+  };
   document.getElementById("win-newgame").onclick = function(){
     hideOverlay(document.getElementById("win-overlay"));
     newGame();
@@ -1124,6 +1156,13 @@
   newGame();
   requestAnimationFrame(fitStage);
   setTimeout(fitStage, 250);
+
+  try{
+    if(!localStorage.getItem("lwSolitaireSeenHelp")){
+      showOverlay(document.getElementById("help-overlay"));
+      localStorage.setItem("lwSolitaireSeenHelp", "1");
+    }
+  }catch(e){}
 })();
 </script>
 </body>
